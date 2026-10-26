@@ -1,4 +1,4 @@
-package storage;
+package com.example.file_converter.storage;
 
 import com.example.file_converter.exception.SourceNotFoundException;
 import com.example.file_converter.exception.StorageException;
