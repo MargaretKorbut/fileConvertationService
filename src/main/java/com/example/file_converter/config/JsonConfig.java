@@ -1,16 +1,14 @@
 package com.example.file_converter.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 public class JsonConfig {
 
     @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    public JsonMapper jsonMapper() {
+        return JsonMapper.builder().build();
     }
 }
