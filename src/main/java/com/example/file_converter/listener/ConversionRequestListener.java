@@ -3,6 +3,7 @@ package com.example.file_converter.listener;
 import com.example.file_converter.event.ConversionRequestedEvent;
 import com.example.file_converter.exception.InvalidMessageException;
 import com.example.file_converter.handler.ConversionHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -10,21 +11,16 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
 @Component
+@RequiredArgsConstructor
 public class ConversionRequestListener {
 
     private final ConversionHandler handler;
     private final JsonMapper jsonMapper;
 
-    public ConversionRequestListener(ConversionHandler handler, JsonMapper jsonMapper) {
-        this.handler = handler;
-        this.jsonMapper = jsonMapper;
-    }
-
     @KafkaListener(topics = "${app.topics.requests}")
     public void onMessage(String message, Acknowledgment ack) {
         ConversionRequestedEvent event = parse(message);
         handler.handle(event);
-        // offset подтверждаем только ПОСЛЕ того, как всё записано в БД
         ack.acknowledge();
     }
 

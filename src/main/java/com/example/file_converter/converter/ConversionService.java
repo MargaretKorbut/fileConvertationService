@@ -1,19 +1,17 @@
 package com.example.file_converter.converter;
 
-import org.springframework.stereotype.Service;
 import com.example.file_converter.exception.ConversionException;
 import com.example.file_converter.exception.UnsupportedFileTypeException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ConversionService {
 
-    // Spring сам соберёт сюда ВСЕ классы, помеченные @Component и реализующие Converter
     private final List<Converter> converters;
-
-    public ConversionService(List<Converter> converters) {
-        this.converters = converters;
-    }
 
     public byte[] convert(String fileName, byte[] content) {
         FileType type = FileType.fromFileName(fileName);

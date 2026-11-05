@@ -1,29 +1,34 @@
-package com.example.file_converter.converter;
+package com.example.file_converter.converter.impl;
 
+import com.example.file_converter.converter.ConversionService;
+import com.example.file_converter.converter.Converter;
+import com.example.file_converter.converter.FileType;
+import com.example.file_converter.exception.ConversionException;
+import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
-import com.example.file_converter.exception.ConversionException;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 @Component
+@RequiredArgsConstructor
 public class ZipConverter implements Converter {
 
     private static final int MAX_ENTRIES = 100;   // защита от «zip-бомбы»
 
     private final ObjectProvider<ConversionService> conversionServiceProvider;
-
-    public ZipConverter(ObjectProvider<ConversionService> conversionServiceProvider) {
-        this.conversionServiceProvider = conversionServiceProvider;
-    }
 
     @Override
     public boolean supports(FileType type) {
@@ -32,11 +37,19 @@ public class ZipConverter implements Converter {
 
     @Override
     public byte[] toPdf(String fileName, byte[] content) throws IOException {
+        try {
+            return convertZip(content, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException | ZipException e) {
+            return convertZip(content, Charset.forName("Cp866"));
+        }
+    }
+
+    private byte[] convertZip(byte[] content, Charset charset) throws IOException {
         ConversionService conversionService = conversionServiceProvider.getObject();
         List<byte[]> pdfs = new ArrayList<>();
         int count = 0;
 
-        try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(content))) {
+        try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(content), charset)) {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 if (entry.isDirectory() || isJunk(entry.getName())) {
@@ -46,7 +59,6 @@ public class ZipConverter implements Converter {
                     throw new ConversionException("В архиве слишком много файлов");
                 }
                 byte[] data = zip.readAllBytes();
-                // та же самая «Стратегия»: если внутри ещё один zip, сработает рекурсия
                 pdfs.add(conversionService.convert(entry.getName(), data));
             }
         }
@@ -57,7 +69,6 @@ public class ZipConverter implements Converter {
         return pdfs.size() == 1 ? pdfs.get(0) : merge(pdfs);
     }
 
-    // служебные файлы, которые создают macOS и Windows
     private boolean isJunk(String name) {
         String base = name.substring(name.lastIndexOf('/') + 1);
         return name.startsWith("__MACOSX/") || base.startsWith(".") || base.equalsIgnoreCase("Thumbs.db");

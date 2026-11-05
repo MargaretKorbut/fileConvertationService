@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: file-converter
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/converter}
+    username: ${DB_USER:converter}
+    password: ${DB_PASSWORD:converter}
+  sql:
+    init:
+      mode: always
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
+    consumer:
+      group-id: file-converter
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+    listener:
+      ack-mode: manual
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+
+app:
+  topics:
+    requests: file-conversion-requests
+    results: file-conversion-results

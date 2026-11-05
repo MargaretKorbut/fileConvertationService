@@ -1,5 +1,7 @@
-package com.example.file_converter.converter;
+package com.example.file_converter.converter.impl;
 
+import com.example.file_converter.converter.Converter;
+import com.example.file_converter.converter.FileType;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -19,8 +21,8 @@ import java.util.List;
 public class TxtConverter implements Converter {
 
     private static final float FONT_SIZE = 12f;
-    private static final float LEADING = 16f;   // расстояние между строками
-    private static final float MARGIN = 50f;    // поля страницы
+    private static final float LEADING = 16f;
+    private static final float MARGIN = 50f;
 
     @Override
     public boolean supports(FileType type) {
@@ -44,7 +46,6 @@ public class TxtConverter implements Converter {
             PDPageContentStream stream = null;
             float y = 0;
             for (String line : lines) {
-                // нужна новая страница: первая строка или место кончилось
                 if (stream == null || y < MARGIN) {
                     if (stream != null) {
                         stream.endText();
@@ -70,7 +71,7 @@ public class TxtConverter implements Converter {
                 stream.endText();
                 stream.close();
             } else {
-                doc.addPage(new PDPage(pageSize));   // пустой файл: одна пустая страница
+                doc.addPage(new PDPage(pageSize));
             }
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();

@@ -1,5 +1,7 @@
-package com.example.file_converter.converter;
+package com.example.file_converter.converter.impl;
 
+import com.example.file_converter.converter.Converter;
+import com.example.file_converter.converter.FileType;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;

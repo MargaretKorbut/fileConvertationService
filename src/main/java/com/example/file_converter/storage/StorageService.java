@@ -6,19 +6,17 @@ import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.errors.ErrorResponseException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 @Service
+@RequiredArgsConstructor
 public class StorageService {
 
     private final MinioClient minioClient;
-
-    public StorageService(MinioClient minioClient) {
-        this.minioClient = minioClient;
-    }
 
     public byte[] download(String bucket, String key) {
         try (InputStream in = minioClient.getObject(
@@ -27,7 +25,6 @@ public class StorageService {
         } catch (ErrorResponseException e) {
             String code = e.errorResponse().code();
             if ("NoSuchKey".equals(code) || "NoSuchBucket".equals(code)) {
-                // файла нет: повторять бесполезно, это бизнес-ошибка
                 throw new SourceNotFoundException("Файл не найден: " + bucket + "/" + key);
             }
             throw new StorageException("Ошибка MinIO при скачивании " + key, e);

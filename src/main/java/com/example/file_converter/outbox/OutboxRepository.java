@@ -2,18 +2,15 @@ package com.example.file_converter.outbox;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
+import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.UUID;
 
 @Repository
+@RequiredArgsConstructor
 public class OutboxRepository {
 
     private final JdbcTemplate jdbc;
-
-    public OutboxRepository(JdbcTemplate jdbc) {
-        this.jdbc = jdbc;
-    }
 
     public void save(UUID id, String key, String payload) {
         jdbc.update("INSERT INTO outbox (id, event_key, payload) VALUES (?, ?, ?)",
