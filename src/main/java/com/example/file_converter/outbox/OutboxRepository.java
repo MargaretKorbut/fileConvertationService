@@ -19,8 +19,9 @@ public class OutboxRepository {
 
     public List<OutboxMessage> findUnpublished(int limit) {
         return jdbc.query(
-                "SELECT id, event_key, payload FROM outbox "
-                        + "WHERE published_at IS NULL ORDER BY created_at LIMIT ?",
+                "SELECT id, event_key, payload FROM outbox " +
+                        "WHERE published_at IS NULL ORDER BY created_at LIMIT ? " +
+                        "FOR UPDATE SKIP LOCKED",
                 (rs, rowNum) -> new OutboxMessage(
                         rs.getObject("id", UUID.class),
                         rs.getString("event_key"),

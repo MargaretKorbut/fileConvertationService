@@ -5,9 +5,15 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5433/converter}
     username: ${DB_USER:converter}
     password: ${DB_PASSWORD:converter}
-  sql:
-    init:
-      mode: always
+  spring:
+    application:
+      name: file-converter
+    datasource:
+      url: ${DB_URL:jdbc:postgresql://localhost:5433/converter}
+      username: ${DB_USER:converter}
+      password: ${DB_PASSWORD:converter}
+    liquibase:
+      change-log: classpath:db/changelog/db.changelog-master.yaml
   kafka:
     bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
     consumer:
